@@ -17,15 +17,12 @@
             return $stmt;
         }
 
-        // Get single category
         public function read_single() {
             $query = 'SELECT id, category FROM ' . $this->table . ' WHERE id = ? LIMIT 1';
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(1, $this->id);
             $stmt->execute();
-
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
             if($row) {
                 $this->category = $row['category'];
                 return true;
@@ -33,66 +30,31 @@
             return false;
         }
 
-        // Create category
         public function create() {
-            // Standard SQL works on both MySQL and Postgres
+            // Updated to Standard SQL for Postgres
             $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category)';
             $stmt = $this->conn->prepare($query);
             $this->category = htmlspecialchars(strip_tags($this->category));
             $stmt->bindParam(':category', $this->category);
-
-            if($stmt->execute()) {
-                return true;
-            }
-            return false;
+            return $stmt->execute();
         }
 
-        // Update Category
         public function update() {
-            $query = 'UPDATE ' . $this->table . '
-                    SET
-                        category = :category
-                    WHERE
-                        id = :id';
-
+            $query = 'UPDATE ' . $this->table . ' SET category = :category WHERE id = :id';
             $stmt = $this->conn->prepare($query);
-
-            // clean data
             $this->category = htmlspecialchars(strip_tags($this->category));
             $this->id = htmlspecialchars(strip_tags($this->id));
-
-            // bind data
             $stmt->bindParam(':category', $this->category);
             $stmt->bindParam(':id', $this->id);
-
-            if($stmt->execute()) {
-                return true;
-            }
-            return false;
+            return $stmt->execute();
         }
 
-        // Delete Category
         public function delete() {
-            // create query
             $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
-
-            // prepare statement
             $stmt = $this->conn->prepare($query);
-
-            // clean data
             $this->id = htmlspecialchars(strip_tags($this->id));
-
-            // bind data
             $stmt->bindParam(':id', $this->id);
-
-            // execute query
-            if($stmt->execute()) {
-                return true;
-            }
-
-            printf("Error: %s.\n", $stmt->error);
-            
-            return false;
+            return $stmt->execute();
         }
     }
 ?>

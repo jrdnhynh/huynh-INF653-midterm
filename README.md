@@ -1,7 +1,7 @@
 # INF653 Back End Web Development - Midterm Project
 
 **Student Name:** Jordan Huynh  
-**Live Site URL:** [REPLACE WITH YOUR RENDER URL HERE]
+**Live Site URL:** [https://huynh-inf653-midterm.onrender.com]
 
 ## Project Description
 A RESTful API built with PHP (OOP) and PostgreSQL to manage a database of quotes. This project is containerized using Docker and deployed on Render.com.

@@ -12,24 +12,23 @@
     $db = $database->connect();
     $quote = new Quote($db);
 
-    // GET id, if no id set to null
+    // get id from query param
     $quote->id = isset($_GET['id']) ? $_GET['id'] : null;
 
-    // validate if user provided id in url
+    // check id was provided
     if (empty($quote->id)) {
         echo json_encode(array('message' => 'Missing Required Parameters'));
         exit;
     }
 
-    // fetch and respond
+    // fetch quote and respond
     if ($quote->read_single()) {
+        // GET returns only id, quote, author, category (no _id fields)
         echo json_encode(array(
-            'id'          => $quote->id,
-            'quote'       => $quote->quote,
-            'author'      => $quote->author_name,
-            'author_id'   => $quote->author_id,
-            'category'    => $quote->category_name,
-            'category_id' => $quote->category_id
+            'id'       => $quote->id,
+            'quote'    => $quote->quote,
+            'author'   => $quote->author_name,
+            'category' => $quote->category_name
         ));
     } else {
         echo json_encode(array('message' => 'No Quotes Found'));

@@ -27,35 +27,35 @@
         exit;
     }
 
-    // validate author
+    // validate author exists
     $author->id = $data->author_id;
     if (!$author->read_single()) {
         echo json_encode(array('message' => 'author_id Not Found'));
         exit;
     }
 
-    // validate category
+    // validate category exists
     $category->id = $data->category_id;
     if (!$category->read_single()) {
         echo json_encode(array('message' => 'category_id Not Found'));
         exit;
     }
 
-    // clean data
+    // set quote properties
     $quote->quote       = $data->quote;
     $quote->author_id   = $data->author_id;
     $quote->category_id = $data->category_id;
 
-    // create & respond quote data
+    // create quote and respond
     if ($quote->create()) {
+        // get the new id from the postgres sequence
         $quote->id = $db->lastInsertId('quotes_id_seq');
         $quote->read_single();
+        // POST returns id, quote, author_id, category_id (no name fields)
         echo json_encode(array(
             'id'          => $quote->id,
             'quote'       => $quote->quote,
-            'author'      => $quote->author_name,
             'author_id'   => $quote->author_id,
-            'category'    => $quote->category_name,
             'category_id' => $quote->category_id
         ));
     } else {

@@ -5,16 +5,17 @@
     header('Access-Control-Allow-Methods: GET');
     header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
+    // imports
     include_once '../../config/Database.php';
     include_once '../../models/Quote.php';
     include_once '../../models/Author.php';
     include_once '../../models/Category.php';
 
-    // instantiate and connect db
+    // instantiate
     $database = new Database();
     $db = $database->connect();
 
-    // GET author id
+    // validate author_id filter if provided
     if (!empty($_GET['author_id'])) {
         $author = new Author($db);
         $author->id = $_GET['author_id'];
@@ -24,7 +25,7 @@
         }
     }
 
-    // GET category id
+    // validate category_id filter if provided
     if (!empty($_GET['category_id'])) {
         $category = new Category($db);
         $category->id = $_GET['category_id'];
@@ -34,12 +35,12 @@
         }
     }
 
-    // check url for author, category or random -> if not provided then null or false
+    // read query params
     $author_id   = !empty($_GET['author_id'])   ? $_GET['author_id']   : null;
     $category_id = !empty($_GET['category_id']) ? $_GET['category_id'] : null;
     $random      = !empty($_GET['random']) && $_GET['random'] === 'true';
 
-    // join tables
+    // build base query with joins to get author and category names
     $query = 'SELECT c.category AS category_name, a.author AS author_name,
                 q.id, q.quote, q.author_id, q.category_id
               FROM quotes q
@@ -47,7 +48,7 @@
               LEFT JOIN authors a ON q.author_id = a.id
               WHERE 1=1';
 
-    // query filters
+    // append filters dynamically
     $params = array();
     if ($author_id) {
         $query .= ' AND q.author_id = :author_id';
@@ -57,9 +58,11 @@
         $query .= ' AND q.category_id = :category_id';
         $params[':category_id'] = $category_id;
     }
+
+    // append random or default ordering
     $query .= $random ? ' ORDER BY RANDOM() LIMIT 1' : ' ORDER BY q.id DESC';
 
-    // prepare statement and execute
+    // prepare and execute query
     $stmt = $db->prepare($query);
     foreach ($params as $key => $val) {
         $stmt->bindValue($key, $val);
@@ -67,27 +70,28 @@
     $stmt->execute();
     $num = $stmt->rowCount();
 
+    // respond with results
     if ($num > 0) {
         if ($random) {
+            // return single object for random=true
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            // GET returns only id, quote, author, category (no _id fields)
             echo json_encode(array(
-                'id'          => $row['id'],
-                'quote'       => $row['quote'],
-                'author'      => $row['author_name'],
-                'author_id'   => $row['author_id'],
-                'category'    => $row['category_name'],
-                'category_id' => $row['category_id']
+                'id'       => $row['id'],
+                'quote'    => $row['quote'],
+                'author'   => $row['author_name'],
+                'category' => $row['category_name']
             ));
         } else {
+            // return array of quotes
             $quotes_arr = array();
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                // GET returns only id, quote, author, category (no _id fields)
                 $quotes_arr[] = array(
-                    'id'          => $row['id'],
-                    'quote'       => $row['quote'],
-                    'author'      => $row['author_name'],
-                    'author_id'   => $row['author_id'],
-                    'category'    => $row['category_name'],
-                    'category_id' => $row['category_id']
+                    'id'       => $row['id'],
+                    'quote'    => $row['quote'],
+                    'author'   => $row['author_name'],
+                    'category' => $row['category_name']
                 );
             }
             echo json_encode($quotes_arr);

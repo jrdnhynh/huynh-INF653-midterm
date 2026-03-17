@@ -13,11 +13,15 @@
 
     $data = json_decode(file_get_contents("php://input"));
 
-    if(!empty($data->category)) {
+    if (!empty($data->category)) {
         $category->category = $data->category;
 
-        if($category->create()) {
-            echo json_encode(array('id' => $db->lastInsertId(), 'category' => $category->category));
+        if ($category->create()) {
+            // PostgreSQL requires the sequence name for lastInsertId
+            echo json_encode(array(
+                'id'       => $db->lastInsertId('categories_id_seq'),
+                'category' => $category->category
+            ));
         } else {
             echo json_encode(array('message' => 'Category Not Created'));
         }

@@ -7,28 +7,35 @@
 
     include_once '../../config/Database.php';
     include_once '../../models/Quote.php';
+    include_once '../../models/Author.php';
+    include_once '../../models/Category.php';
 
     // instantiate DB & connect
     $database = new Database();
     $db = $database->connect();
 
-    // instantiate quote
-    $quote = new Quote($db);
+    // instantiate objects
+    $quote    = new Quote($db);
+    $author   = new Author($db);
+    $category = new Category($db);
 
     // get raw posted data
     $data = json_decode(file_get_contents("php://input"));
 
-    // check for required parameters (must have ID to update)
-    if (empty($data->id) || empty($data->quote) || empty($data->author_id) || empty($data->category_id)) {
+    // id is required; quote/author_id/category_id are required fields
+    if (empty($data->id)) {
+        echo json_encode(array('message' => 'Missing Required Parameters'));
+        exit;
+    }
+
+    if (empty($data->quote) || empty($data->author_id) || empty($data->category_id)) {
         echo json_encode(array('message' => 'Missing Required Parameters'));
         exit;
     }
 
     // check if quote exists
     $quote->id = $data->id;
-    // if it fails it doesnt exist
-    $quote->read_single();
-    if (empty($quote->quote)) {
+    if (!$quote->read_single()) {
         echo json_encode(array('message' => 'No Quotes Found'));
         exit;
     }
@@ -47,19 +54,21 @@
         exit;
     }
 
-    // update quote
-    $quote->quote = $data->quote;
-    $quote->author_id = $data->author_id;
+    // set updated values
+    $quote->quote       = $data->quote;
+    $quote->author_id   = $data->author_id;
     $quote->category_id = $data->category_id;
 
-    if($quote->update()) {
-        // fetch updated version
+    if ($quote->update()) {
+        // fetch and return updated quote
         $quote->read_single();
         echo json_encode(array(
-            'id' => $quote->id,
-            'quote' => $quote->quote,
-            'author' => $quote->author_name,
-            'category' => $quote->category_name
+            'id'          => $quote->id,
+            'quote'       => $quote->quote,
+            'author'      => $quote->author_name,
+            'category'    => $quote->category_name,
+            'author_id'   => $quote->author_id,
+            'category_id' => $quote->category_id
         ));
     } else {
         echo json_encode(array('message' => 'Quote Not Updated'));

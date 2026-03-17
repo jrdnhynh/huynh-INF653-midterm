@@ -13,8 +13,8 @@
     $database = new Database();
     $db = $database->connect();
 
-    $quote = new Quote($db);
-    $author = new Author($db);
+    $quote    = new Quote($db);
+    $author   = new Author($db);
     $category = new Category($db);
 
     $data = json_decode(file_get_contents("php://input"));
@@ -39,21 +39,23 @@
         exit;
     }
 
-    // create quote
-    $quote->quote = $data->quote;
-    $quote->author_id = $data->author_id;
+    // set quote properties
+    $quote->quote       = $data->quote;
+    $quote->author_id   = $data->author_id;
     $quote->category_id = $data->category_id;
 
-    if($quote->create()) {
-        // fetch newly created quote
-        $quote->id = $db->lastInsertId();
+    if ($quote->create()) {
+        // PostgreSQL requires the sequence name for lastInsertId
+        $quote->id = $db->lastInsertId('quotes_id_seq');
         $quote->read_single();
 
         echo json_encode(array(
-            'id' => $quote->id,
-            'quote' => $quote->quote,
-            'author' => $quote->author_name,
-            'category' => $quote->category_name
+            'id'          => $quote->id,
+            'quote'       => $quote->quote,
+            'author'      => $quote->author_name,
+            'category'    => $quote->category_name,
+            'author_id'   => $quote->author_id,
+            'category_id' => $quote->category_id
         ));
     } else {
         echo json_encode(array('message' => 'Quote Not Created'));

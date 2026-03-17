@@ -13,11 +13,15 @@
 
     $data = json_decode(file_get_contents("php://input"));
 
-    if(!empty($data->author)) {
+    if (!empty($data->author)) {
         $author->author = $data->author;
 
-        if($author->create()) {
-            echo json_encode(array('id' => $db->lastInsertId(), 'author' => $author->author));
+        if ($author->create()) {
+            // PostgreSQL requires the sequence name for lastInsertId
+            echo json_encode(array(
+                'id'     => $db->lastInsertId('authors_id_seq'),
+                'author' => $author->author
+            ));
         } else {
             echo json_encode(array('message' => 'Author Not Created'));
         }

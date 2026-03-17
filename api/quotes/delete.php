@@ -18,26 +18,24 @@
     // get raw posted data
     $data = json_decode(file_get_contents("php://input"));
 
-    // check for required parameters
-    if (!empty($data->id)) {
-        
-        // assign the ID from the data to the quote object
-        $quote->id = $data->id;
+    // check for required id parameter
+    if (empty($data->id)) {
+        echo json_encode(array('message' => 'Missing Required Parameters'));
+        exit;
+    }
 
-        // delete quote
-        if($quote->delete()) {
-            echo json_encode(
-                array('id' => $quote->id)
-            );
-        } else {
-            echo json_encode(
-                array('message' => 'Quote Not Deleted')
-            );
-        }
+    $quote->id = $data->id;
+
+    // check quote exists before deleting
+    if (!$quote->read_single()) {
+        echo json_encode(array('message' => 'No Quotes Found'));
+        exit;
+    }
+
+    // delete quote
+    if ($quote->delete()) {
+        echo json_encode(array('id' => $quote->id));
     } else {
-        // missing parameters
-        echo json_encode(
-            array('message' => 'Missing Required Parameters')
-        );
+        echo json_encode(array('message' => 'Quote Not Deleted'));
     }
 ?>

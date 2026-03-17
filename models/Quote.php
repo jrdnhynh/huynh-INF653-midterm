@@ -21,8 +21,8 @@
         public function read() {
             // create query
             $query = 'SELECT
-                    c.category_name,
-                    a.author_name,
+                    c.category AS category_name,
+                    a.author AS author_name,
                     q.id,
                     q.quote,
                     q.author_id,
@@ -34,7 +34,7 @@
                 LEFT JOIN
                     authors a ON q.author_id = a.id
                 ORDER BY
-                q.id DESC';
+                    q.id DESC';
 
             // prepare statement
             $stmt = $this->conn->prepare($query);
@@ -49,8 +49,8 @@
         public function read_single() {
             // create query
             $query = 'SELECT
-                    c.category as category_name,
-                    a.author as author_name,
+                    c.category AS category_name,
+                    a.author AS author_name,
                     q.id,
                     q.quote,
                     q.author_id,
@@ -77,22 +77,30 @@
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // set properties
-            $this->quote = $row['quote'];
-            $this->author_id = $row['author_id'];
-            $this->category_id = $row['category_id'];
-            $this->author_name = $row['author_name'];
-            $this->category_name = $row['category_name'];
+            if($row) {
+                $this->quote = $row['quote'];
+                $this->author_id = $row['author_id'];
+                $this->category_id = $row['category_id'];
+                $this->author_name = $row['author_name'];
+                $this->category_name = $row['category_name'];
+                return true;
+            }
+            return false;
         }
 
         // create Quote
         public function create() {
+            // Standard SQL (VALUES instead of SET) for Postgres compatibility
             $query = 'INSERT INTO ' . $this->table . ' (quote, author_id, category_id) VALUES (:quote, :author_id, :category_id)';
+            
             $stmt = $this->conn->prepare($query);
 
+            // clean data
             $this->quote = htmlspecialchars(strip_tags($this->quote));
             $this->author_id = htmlspecialchars(strip_tags($this->author_id));
             $this->category_id = htmlspecialchars(strip_tags($this->category_id));
 
+            // bind data
             $stmt->bindParam(':quote', $this->quote);
             $stmt->bindParam(':author_id', $this->author_id);
             $stmt->bindParam(':category_id', $this->category_id);
@@ -133,8 +141,6 @@
             if($stmt->execute()) {
                 return true;
             }
-
-            printf("Error: %s.\n", $stmt->error);
             
             return false;
         }
@@ -157,8 +163,6 @@
             if($stmt->execute()) {
                 return true;
             }
-
-            printf("Error: %s.\n", $stmt->error);
             
             return false;
         }

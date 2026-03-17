@@ -6,14 +6,13 @@
 
     $method = $_SERVER['REQUEST_METHOD'];
 
-    // handle pre-flight OPTIONS request
     if ($method === 'OPTIONS') {
-        die();
+        http_response_code(200);
+        exit();
     }
 
     switch ($method) {
         case 'GET':
-            // route to read_single if ?id= is present, otherwise read (handles all filters)
             if (isset($_GET['id'])) {
                 require 'read_single.php';
             } else {

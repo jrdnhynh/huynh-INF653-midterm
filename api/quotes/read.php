@@ -32,7 +32,6 @@
         }
     }
 
-    // build dynamic query based on filters
     $author_id   = !empty($_GET['author_id'])   ? $_GET['author_id']   : null;
     $category_id = !empty($_GET['category_id']) ? $_GET['category_id'] : null;
     $random      = !empty($_GET['random']) && $_GET['random'] === 'true';
@@ -76,22 +75,20 @@
 
     if ($num > 0) {
         if ($random) {
-            // return single object for random
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             echo json_encode(array(
-                'id'         => $row['id'],
-                'quote'      => $row['quote'],
-                'author'     => $row['author_name'],
-                'category'   => $row['category_name'],
-                'author_id'  => $row['author_id'],
-                'category_id'=> $row['category_id']
+                'id'          => $row['id'],
+                'quote'       => $row['quote'],
+                'author'      => $row['author_name'],
+                'category'    => $row['category_name'],
+                'author_id'   => $row['author_id'],
+                'category_id' => $row['category_id']
             ));
         } else {
+            // return plain array - test suite expects [] not {"data":[]}
             $quotes_arr = array();
-            $quotes_arr['data'] = array();
-
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $quotes_arr['data'][] = array(
+                $quotes_arr[] = array(
                     'id'          => $row['id'],
                     'quote'       => $row['quote'],
                     'author'      => $row['author_name'],
@@ -100,7 +97,6 @@
                     'category_id' => $row['category_id']
                 );
             }
-
             echo json_encode($quotes_arr);
         }
     } else {

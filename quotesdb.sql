@@ -1,18 +1,23 @@
+-- 0. drop existing tables to start fresh
+DROP TABLE IF EXISTS quotes;
+DROP TABLE IF EXISTS authors;
+DROP TABLE IF EXISTS categories;
+
 -- 1. create authors table
 CREATE TABLE authors (
     id SERIAL PRIMARY KEY,
-    author VARCHAR(255) NOT NULL
+    author_name VARCHAR(255) NOT NULL
 );
 
 -- 2. create categories table
 CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category VARCHAR(255) NOT NULL
+    id SERIAL PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL
 );
 
 -- 3. create quotes table
 CREATE TABLE quotes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     quote TEXT NOT NULL,
     author_id INT NOT NULL,
     category_id INT NOT NULL,
@@ -21,11 +26,11 @@ CREATE TABLE quotes (
 );
 
 -- 4. insert categories
-INSERT INTO categories (category) VALUES 
+INSERT INTO categories (category_name) VALUES 
 ('Music'), ('Sports'), ('Funny'), ('Random'), ('Inspirational');
 
 -- 5. insert authors
-INSERT INTO authors (author) VALUES 
+INSERT INTO authors (author_name) VALUES 
 ('Bob Marley'), ('Jimi Hendrix'), ('Michael Jordan'), ('Muhammad Ali'), 
 ('Wayne Gretzky'), ('Mark Twain'), ('Oscar Wilde'), ('Will Rogers'), 
 ('Albert Einstein'), ('Dolly Parton'), ('Freddie Mercury'), ('Kurt Cobain'), 

@@ -21,8 +21,8 @@
         public function read() {
             // create query
             $query = 'SELECT
-                    c.category as category_name,
-                    a.author as author_name,
+                    c.category_name,
+                    a.author_name,
                     q.id,
                     q.quote,
                     q.author_id,

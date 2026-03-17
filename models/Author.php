@@ -35,13 +35,9 @@
 
         // Create author
         public function create() {
-            $query = 'INSERT INTO ' . $this->table . ' SET author = :author';
+            $query = 'INSERT INTO ' . $this->table . ' (author) VALUES (:author)';
             $stmt = $this->conn->prepare($query);
-
-            // clean data
             $this->author = htmlspecialchars(strip_tags($this->author));
-
-            // bind data
             $stmt->bindParam(':author', $this->author);
 
             if($stmt->execute()) {

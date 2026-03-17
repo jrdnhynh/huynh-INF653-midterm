@@ -35,13 +35,10 @@
 
         // Create category
         public function create() {
-            $query = 'INSERT INTO ' . $this->table . ' SET category = :category';
+            // Standard SQL works on both MySQL and Postgres
+            $query = 'INSERT INTO ' . $this->table . ' (category) VALUES (:category)';
             $stmt = $this->conn->prepare($query);
-
-            // clean data
             $this->category = htmlspecialchars(strip_tags($this->category));
-
-            // bind data
             $stmt->bindParam(':category', $this->category);
 
             if($stmt->execute()) {

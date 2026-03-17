@@ -29,7 +29,7 @@ RUN docker-php-ext-install pdo_pgsql
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Enable Apache modules
-RUN a2enmod rewrite
+RUN a2enmod headers rewrite
 
 # Suprisingly, I deployed to Render without this!
 # Set Apache to bind to IP address 0.0.0.0
